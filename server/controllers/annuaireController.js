@@ -1,41 +1,31 @@
 'use strict'
 
-var db = require('../controllers/database');
+var Database = require('better-sqlite3');
+var db = new Database('annuaire.db');
 
-var myCallback = function(err, data)
-{
-  console.log("CallBack");
-  console.log(data);
-  return (data);
-};
+// create database
+db.exec('CREATE TABLE if not exists annuaire(id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, email TEXT, phone TEXT)');
 
 exports.getAllContact = function(req, res)
 {
-  console.log("getAllContact");
-  var data = db.select(myCallback);
-  return (data);
+  var data = db.prepare('SELECT * FROM annuaire').all();
+  return (res.json(data));
 }
 
 exports.getContactById = function(req, res)
 {
-  console.log("getContactById");
-  if (req.params.id)
-  {
-      var data = db.selectById(req.params.id, myCallback);
-      return (data);
-  }
-  else
-    return (res.send({"error": "undefined id"}));
+  var data = db.prepare('SELECT * FROM annuaire WHERE id=?').get(req.params.id);
+  return (res.json(data));
 }
 
 exports.postContact = function(req, res)
 {
-  console.log("postContact");
   if (req.body)
   {
-    db.insertInto(req.body);
+    var stmt = db.prepare('INSERT INTO annuaire VALUES (null, :firstname, :lastname, :email, :phone)');
+    stmt.run(req.body);
     return res.send({'msg': 'Contact ajouter avec succès'});
   }
   else
-      return res.send({'error': 'Impossible d\'ajouter un contact'});
+      return res.send({'msg': 'Impossible d\'ajouter un contact'});
 }

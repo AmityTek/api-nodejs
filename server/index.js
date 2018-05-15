@@ -32,8 +32,8 @@ var express = require('express'), app = express(), port = process.env.PORT || 80
 var cors = require('cors') // importing cors
 var bodyParser = require('body-parser') // importing parsing
 let routes = require('./routes/route'); //importing route
-let db = require('./controllers/database'); //importing model sqlite
 
+app.use(bodyParser.urlencoded({ extended: true})); // allow parsing json
 app.use(bodyParser.json()); // allow parsing json
 
 app.use(function (req, res, next) // app.use() here is used to setHeader to allow api
